@@ -40,14 +40,22 @@ def evaluate(stockID):
 	webdata = response.read()
 	sp = BeautifulSoup(webdata.decode('cp950'), "html.parser")
 	response.close()
+	table = sp.find_all("table", {"class" : "t01"})
+	PEindex = 0
+	for trtag in table:
+		for tdtag in trtag.find_all("td", {"class" : "t4t1"}):
+			PEindex = PEindex + 1
+			if (tdtag.text == "本益比"):
+				break;
 
-	tbls = sp.find_all('table', attrs={'border' : '0'})
-	trs = tbls[0].find_all('tr')
-	tds = trs[6].find_all('td')
-	PE = tds[1].get_text()
-	PE = PE.replace(",", "")
+	for trtag in table:
+		trs = trtag.find_all("td", {"class" : "t3n1"})
+
+	PE = trs[PEindex-1].get_text().replace(",", "")
 
 	# 收盤價
+	tbls = sp.find_all('table', attrs={'border' : '0'})
+	trs = tbls[0].find_all('tr')
 	tds = trs[4].find_all('td')
 	if (tds[7].get_text() != "" and tds[7].get_text() != "N/A"):
 		closePrice = float(tds[7].get_text().replace(",", ""))
